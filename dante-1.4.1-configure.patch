@@ -1,0 +1,17 @@
+--- BUILD/dante-1.4.1/configure.ac	2014-08-18 03:32:34.000000000 +0800
++++ /tmp/orig/configure.ac	2016-08-10 16:40:33.354000000 +0800
+@@ -209,10 +209,12 @@
+ echo "CC: $CC $initCC" >> buildenv.txt
+ echo "CFLAGS: $CFLAGS $initCFLAGS" >> buildenv.txt
+ echo "CPP: $CPP $initCPP" >> buildenv.txt
+-echo "CPPFLAGS: $CPPFLAGS $initCPPFLAGS" >> buildenv.txt
++#echo "CPPFLAGS: $CPPFLAGS $initCPPFLAGS" >> buildenv.txt
++echo "CPPFLAGS: $CPPFLAGS $initCPPFLAGS -I/usr/include" >> buildenv.txt
+ echo "LDFLAGS: $LDFLAGS $initLDFLAGS" >> buildenv.txt
+ echo "LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}" >> buildenv.txt
+-echo "LIBS: $LIBS $initLIBS" >> buildenv.txt
++#echo "LIBS: $LIBS $initLIBS" >> buildenv.txt
++echo "LIBS: $LIBS $initLIBS -lcurl -ljson-c  -L/lib/x86_64-linux-gnu/ -lnl-3 -lnl-route-3" >> buildenv.txt
+ echo "DLIBDEPS: $DLIBDEPS" >> buildenv.txt
+ echo "SOCKDDEPS: $SOCKDDEPS" >> buildenv.txt
+ echo "compiler flags: $comp_flags" >> buildenv.txt

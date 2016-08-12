@@ -1,0 +1,11 @@
+[Unit]
+Description=SOCKS v4 and v5 compatible proxy server and client
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/sockd.pid
+ExecStart=/usr/sbin/sockd -D -p /var/run/sockd.pid
+
+[Install]
+WantedBy=multi-user.target

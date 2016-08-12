@@ -1,0 +1,99 @@
+diff -x 'autoconf*' -x 'Makefile*' -du include/config.h /tmp/private_server/include/config.h
+--- include/config.h	2013-10-27 23:24:41.000000000 +0800
++++ /tmp/private_server/include/config.h	2016-06-16 11:08:14.000000000 +0800
+@@ -246,6 +246,7 @@
+  */
+ #define SOCKD_FREESLOTS_NEGOTIATE     (MAX(SOCKD_NEGOTIATEMAX, 8))
+ #define SOCKD_FREESLOTS_REQUEST       (MAX(SOCKD_REQUESTMAX,   16))
++//#define SOCKD_FREESLOTS_REQUEST       1
+ #define SOCKD_FREESLOTS_IO            (MAX(SOCKD_IOMAX,        32))
+ 
+ #if SOCKD_FREESLOTS_NEGOTIATE < 1
+Only in /tmp/private_server/include/: errorsymbols_gen.h
+diff -x 'autoconf*' -x 'Makefile*' -du include/osdep.h /tmp/private_server/include/osdep.h
+--- include/osdep.h	2013-10-27 23:24:41.000000000 +0800
++++ /tmp/private_server/include/osdep.h	2016-06-16 11:08:14.000000000 +0800
+@@ -93,7 +93,11 @@
+ #undef bind
+ #undef connect
+ #endif /* __sun */
++#ifdef __linux__
++#include <linux/if.h>
++#else
+ #include <net/if.h>
++#endif
+ #if NEED_SYS_SOCKIO_H
+ #include <sys/sockio.h>
+ #endif /* NEED_SYS_SOCKIO_H */
+diff -x 'autoconf*' -x 'Makefile*' -du include/sockd.h /tmp/private_server/include/sockd.h
+--- include/sockd.h	2014-08-22 14:23:10.000000000 +0800
++++ /tmp/private_server/include/sockd.h	2016-07-11 17:52:43.000000000 +0800
+@@ -63,6 +63,8 @@
+ 
+ #include <regex.h>
+ 
++#define MPTCP_AUTH_CLIENT_ENABLED 28
++#define MPTCP_AUTH_UUID 29
+ /*
+  * Throttling for objects we send to the monitor process for testing.
+  * Each process can send objects to the monitor at the rate of one
+@@ -1347,9 +1349,22 @@
+    } alarm;
+ } monitor_if_t;
+ 
++#define SOCKD_MAX_CLIENTS           (5000)
++typedef struct {
++   struct {
++      uint32_t     uid;
++      uint32_t     sess_cnt;
++      uint64_t     uploads;
++      uint64_t     downloads;
++      uint32_t     dip[10];
++   } alarm[SOCKD_MAX_CLIENTS];
++   uint32_t user_cnt;
++} user_info_t;
++
+ typedef struct {
+    monitor_if_t   internal;
+    monitor_if_t   external;
++   user_info_t    user_info;
+ } monitor_stats_t;
+ 
+ /* which shmem object.  Bitmask. */
+@@ -2476,7 +2491,7 @@
+ io_update(const struct timeval *timenow, const size_t bwused,
+           const iocount_t *internal_read, const iocount_t *internal_written,
+           const iocount_t *external_read, const iocount_t *external_written,
+-          rule_t *rule, rule_t *packetrule, const int lock);
++          rule_t *rule, rule_t *packetrule, const int lock, const uint32_t uid);
+ /*
+  * update the time/bw counters in "rule" and/or "packetrule" according to
+  * the arguments.
+@@ -4205,7 +4220,7 @@
+ 
+ void
+ alarm_add_connect(rule_t *alarm, const size_t sides,
+-                  const clientinfo_t *cinfo, const int lock);
++                  const clientinfo_t *cinfo, const int lock, const sockd_io_t *io);
+ /*
+  * Adds a connect to the alarmobject referenced by "rule", on the sides
+  * indicated by sides.
+@@ -4215,7 +4230,7 @@
+ void
+ alarm_add_disconnect(const int weclosedfirst, rule_t *alarm,
+                      const size_t sides, const clientinfo_t *cinfo,
+-                     const char *reason, const int lock);
++                     const char *reason, const int lock, const sockd_io_t *io);
+ /*
+  * Adds a disconnect to the alarmobject referenced by "rule", on the sides
+  * indicated by "sides".
+@@ -4228,7 +4243,7 @@
+ 
+ void
+ alarm_remove_session(rule_t *alarm, const size_t sides,
+-                     const clientinfo_t *cinfo, const int lock);
++                     const clientinfo_t *cinfo, const int lock, const sockd_io_t *io);
+ /*
+  * Removes a previously added session on the sides "sides" from the
+  * alarmobject referenced by "rule".
+Only in /tmp/private_server/include/: stamp-h1

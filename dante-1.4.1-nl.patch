@@ -1,0 +1,17 @@
+--- sockd/Makefile.am	2013-11-07 19:27:35.000000000 +0800
++++ /tmp/orig/sockd/Makefile.am	2016-08-10 18:37:49.162000000 +0800
+@@ -41,11 +41,12 @@
+ SERVDL=0
+ endif #SERVER_INTERPOSITION
+ 
+-sockd_LDADD = @SOCKDCOMPAT@ @SOCKDDEPS@ @LIBSCOMPAT@
++sockd_LDADD = @SOCKDCOMPAT@ @SOCKDDEPS@ @LIBSCOMPAT@ -lcurl -ljson-c -L/lib/x86_64-linux-gnu/ -lnl-3 -lnl-route-3
+ sockd_DEPENDENCIES = Makefile.am _reconf @SOCKDCOMPAT@
+ 
+ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/libscompat \
+-	   -I$(top_srcdir)/lib
++	   -I$(top_srcdir)/lib \
++	   -I/usr/include/libnl3
+ 
+ CFLAGVALS = -DSOCKS_SERVER=1 -DSOCKS_CLIENT=0 -DSOCKSLIBRARY_DYNAMIC=${SERVDL}
+ AM_CFLAGS = $(CFLAGVALS) -DSTANDALONE_UNIT_TEST=0
